@@ -37,6 +37,8 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
 
     private static let log = CodexBarLog.logger(LogCategories.provider(.antigravity))
     private static let baseURL = "https://cloudcode-pa.googleapis.com"
+    // The daily host is the one `agy` reads its quota summary from; the stable host can return stale Gemini numbers.
+    private static let quotaSummaryBaseURL = "https://daily-cloudcode-pa.googleapis.com"
     private static let loadCodeAssistEndpoint = "\(baseURL)/v1internal:loadCodeAssist"
     private static let onboardUserEndpoint = "\(baseURL)/v1internal:onboardUser"
     private static let refreshSafetyWindow: TimeInterval = 60
@@ -160,7 +162,8 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
                 accessToken: accessToken,
                 projectId: projectId,
                 timeout: min(self.timeout, 2),
-                dataLoader: self.dataLoader)
+                dataLoader: self.dataLoader,
+                baseURL: Self.quotaSummaryBaseURL)
             try Task.checkCancellation()
             let summary = try response.snapshot(accountEmail: claims.email, accountPlan: plan, source: .remote)
             if summary.hasKnownQuotaSummary {
@@ -213,12 +216,13 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
         accessToken: String,
         projectId: String?,
         timeout: TimeInterval,
-        dataLoader: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse)) async throws
+        dataLoader: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse),
+        baseURL: String = Self.baseURL) async throws
         -> Response
     {
         let body: [String: Any] = (projectId?.trimmedNonEmpty).map { ["project": $0] } ?? [:]
         return try await Self.sendRequest(
-            endpoint: "\(Self.baseURL)/v1internal:\(method)",
+            endpoint: "\(baseURL)/v1internal:\(method)",
             accessToken: accessToken,
             body: body,
             timeout: timeout,

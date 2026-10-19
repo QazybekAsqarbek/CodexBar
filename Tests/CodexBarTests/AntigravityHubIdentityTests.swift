@@ -53,7 +53,8 @@ struct AntigravityHubIdentityTests {
                     "access_token": "\(account)-refreshed", "expires_in": 3600,
                 ])
             } else {
-                #expect(url.host == "cloudcode-pa.googleapis.com")
+                #expect(url.host == "cloudcode-pa.googleapis.com" ||
+                    url.host == "daily-cloudcode-pa.googleapis.com")
                 #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer \(account)-refreshed")
                 switch url.path {
                 case "/v1internal:loadCodeAssist":
@@ -106,9 +107,11 @@ struct AntigravityHubIdentityTests {
 
         let requests = await capture.values()
         let cloudRequests = requests.filter { $0.url?.host == "cloudcode-pa.googleapis.com" }
-        let expectedPaths = ["loadCodeAssist", "onboardUser", "retrieveUserQuotaSummary"] +
+        let expectedCloudPaths = ["loadCodeAssist", "onboardUser"] +
             (summaryAvailable ? [] : ["fetchAvailableModels", "retrieveUserQuota"])
-        #expect(cloudRequests.map { $0.url?.path } == expectedPaths.map { "/v1internal:\($0)" })
+        #expect(cloudRequests.map { $0.url?.path } == expectedCloudPaths.map { "/v1internal:\($0)" })
+        let dailyRequests = requests.filter { $0.url?.host == "daily-cloudcode-pa.googleapis.com" }
+        #expect(dailyRequests.map { $0.url?.path } == ["/v1internal:retrieveUserQuotaSummary"])
         #if arch(arm64)
         let architecture = "arm64"
         #else
