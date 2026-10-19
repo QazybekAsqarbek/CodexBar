@@ -17,6 +17,7 @@
 ### Fixed
 
 - Agent Sessions: keep Tailscale discovery from launching the VPN app, and add a local-only mode that disables remote discovery and SSH polling (#4624, #4583).
+- Antigravity: read OAuth quota summaries from the daily host to match the current Gemini allowances reported by agy (#4632). Thanks @toxakara!
 
 - Settings: disable Restore default order when provider order is already at its default, and clarify the enabled-provider filter (#4592). Thanks @elijahfriedman!
 - Claude: preserve model-specific weekly usage beside malformed limit entries in OAuth and Web responses, and ignore boolean percentages (#4614, #4126). Thanks @Akagilnc!
