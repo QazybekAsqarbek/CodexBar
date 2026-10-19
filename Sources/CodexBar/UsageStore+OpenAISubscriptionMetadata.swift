@@ -87,6 +87,41 @@ extension UsageStore {
                 targetEmail: targetEmail,
                 expectedGuard: expectedGuard,
                 token: token)
+            // Only a concrete provider account may receive sensitive billing metadata.
+            // Keep it on that usage snapshot; never fall back to another account's cached page.
+            guard !Task.isCancelled,
+                  self._test_openAISubscriptionMetadataLoaderOverride == nil,
+                  self.settings.openAIWebAccessEnabled, self.settings.codexCookieSource.isEnabled,
+                  let email = targetEmail,
+                  case let .providerAccount(accountID) = expectedGuard.identity
+            else { return }
+            let billing = await OpenAIDashboardFetcher().fetchAccountBilling(
+                accountEmail: email, accountID: accountID, cacheScope: cacheScope)
+            guard !Task.isCancelled,
+                  self.isEnabled(.codex), self.settings.openAIWebAccessEnabled,
+                  self.settings.codexCookieSource.isEnabled,
+                  self.openAISubscriptionMetadataEnrichmentToken == token,
+                  self.openAIDashboardAttachmentAuthorized,
+                  self.shouldApplyOpenAIDashboardRefreshGuard(
+                      expectedGuard: expectedGuard, routingTargetEmail: targetEmail)
+            else { return }
+            let observation = billing ?? .unavailable()
+            self.snapshots[.codex] = self.snapshots[.codex]?.withAccountBilling(observation)
+            for index in self.codexAccountSnapshots.indices {
+                let row = self.codexAccountSnapshots[index]
+                guard row.account.selectionSource == expectedGuard.source,
+                      row.account.workspaceAccountID == accountID,
+                      CodexIdentityResolver.normalizeEmail(row.account.email)
+                      == CodexIdentityResolver.normalizeEmail(email)
+                else { continue }
+                self.codexAccountSnapshots[index] = CodexAccountUsageSnapshot(
+                    account: row.account,
+                    snapshot: row.snapshot?.withAccountBilling(observation),
+                    error: row.error,
+                    sourceLabel: row.sourceLabel,
+                    credits: row.credits,
+                    weeklyResetCandidate: row.weeklyResetCandidate)
+            }
         }
     }
 

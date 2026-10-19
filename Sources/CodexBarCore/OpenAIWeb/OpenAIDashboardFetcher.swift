@@ -1243,6 +1243,29 @@ extension OpenAIDashboardFetcher {
 }
 
 extension OpenAIDashboardFetcher {
+    public func fetchAccountBilling(
+        accountEmail: String,
+        accountID: String,
+        cacheScope: CookieHeaderCache.Scope? = nil,
+        timeout: TimeInterval = 12) async -> AccountBillingSnapshot?
+    {
+        guard !Task.isCancelled, timeout > 0 else { return nil }
+        let deadline = Self.deadline(startingAt: Date(), timeout: timeout)
+        let store = OpenAIDashboardWebsiteDataStore.store(forAccountEmail: accountEmail, scope: cacheScope)
+        do {
+            let lease = try await self.makeWebView(
+                websiteDataStore: store,
+                logger: nil,
+                timeout: Self.requiredRemainingTimeout(until: deadline))
+            defer { lease.release() }
+            return try await OpenAIBillingPage.fetch(
+                in: lease.webView, email: accountEmail, accountID: accountID, deadline: deadline)
+        } catch {
+            // Never log the page, an invoice, a card, or authentication material.
+            return nil
+        }
+    }
+
     public func fetchSubscriptionMetadata(
         accountEmail: String?,
         cacheScope: CookieHeaderCache.Scope? = nil,

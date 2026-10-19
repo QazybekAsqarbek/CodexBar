@@ -63,7 +63,10 @@ extension UsageStore {
         let metadata = self.metadata(for: provider)
         let descriptor = ProviderDescriptorRegistry.descriptor(for: provider)
         // An explicitly empty account stays empty; live data may belong to another account.
-        let snapshot = isLive ? self.presentationSnapshot(for: provider) : account?.snapshot
+        let rawSnapshot = isLive ? self.presentationSnapshot(for: provider) : account?.snapshot
+        let billingVisible = provider != .codex ||
+            (self.settings.openAIWebAccessEnabled && self.settings.codexCookieSource.isEnabled)
+        let snapshot = billingVisible ? rawSnapshot : rawSnapshot?.withAccountBilling(nil)
         let codexProjection = self.codexConsumerProjectionIfNeeded(
             for: provider,
             surface: isLive ? .liveCard : .overrideCard,
