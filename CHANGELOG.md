@@ -10,6 +10,7 @@
 ### Added
 
 - Vercel: optionally show your personal AI Gateway budget using a separate Vercel access token and Team ID, with UTC reset times and a clear unconfigured state (#4621, #4623). Thanks @sf-jin-ku!
+- Menu bar: add a default-on Show window labels layout option; turn it off for bare Session, Weekly, and Scoped weekly percentages while retaining full VoiceOver descriptions (#4634). Thanks @erikburman!
 - Plugins: user plugins can declare a monochrome inline SVG icon (`icon.svg`, at most 8 KB, plain shapes only), drawn as a template image in the switcher and menu card; an SVG that fails validation falls back to the monogram (#4608). Thanks @shivanathd!
 - Plugins: detail rows can declare normal, warning, or critical severity independently of progress, with system colors and warning symbols (#4602). Thanks @DamonYoungWork!
 
