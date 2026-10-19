@@ -37,8 +37,6 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
 
     private static let log = CodexBarLog.logger(LogCategories.provider(.antigravity))
     private static let baseURL = "https://cloudcode-pa.googleapis.com"
-    // The daily host is the one `agy` reads its quota summary from; the stable host can return stale Gemini numbers.
-    private static let quotaSummaryBaseURL = "https://daily-cloudcode-pa.googleapis.com"
     private static let loadCodeAssistEndpoint = "\(baseURL)/v1internal:loadCodeAssist"
     private static let onboardUserEndpoint = "\(baseURL)/v1internal:onboardUser"
     private static let refreshSafetyWindow: TimeInterval = 60
@@ -158,12 +156,11 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
         let plan = Self.resolvePlan(response: codeAssist, claims: claims)
         do {
             let response: AntigravityQuotaSummaryResponse = try await Self.fetchQuotaResponse(
-                method: "retrieveUserQuotaSummary",
+                endpoint: "https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary",
                 accessToken: accessToken,
                 projectId: projectId,
                 timeout: min(self.timeout, 2),
-                dataLoader: self.dataLoader,
-                baseURL: Self.quotaSummaryBaseURL)
+                dataLoader: self.dataLoader)
             try Task.checkCancellation()
             let summary = try response.snapshot(accountEmail: claims.email, accountPlan: plan, source: .remote)
             if summary.hasKnownQuotaSummary {
@@ -212,17 +209,16 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
     }
 
     private static func fetchQuotaResponse<Response: Decodable>(
-        method: String,
+        endpoint: String,
         accessToken: String,
         projectId: String?,
         timeout: TimeInterval,
-        dataLoader: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse),
-        baseURL: String = Self.baseURL) async throws
+        dataLoader: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse)) async throws
         -> Response
     {
         let body: [String: Any] = (projectId?.trimmedNonEmpty).map { ["project": $0] } ?? [:]
         return try await Self.sendRequest(
-            endpoint: "\(baseURL)/v1internal:\(method)",
+            endpoint: endpoint,
             accessToken: accessToken,
             body: body,
             timeout: timeout,
@@ -238,7 +234,7 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
     {
         do {
             let response: FetchAvailableModelsResponse = try await Self.fetchQuotaResponse(
-                method: "fetchAvailableModels",
+                endpoint: "\(Self.baseURL)/v1internal:fetchAvailableModels",
                 accessToken: accessToken,
                 projectId: projectId,
                 timeout: timeout,
@@ -313,7 +309,7 @@ public struct AntigravityRemoteUsageFetcher: Sendable {
     {
         do {
             let response: RetrieveUserQuotaResponse = try await Self.fetchQuotaResponse(
-                method: "retrieveUserQuota",
+                endpoint: "\(Self.baseURL)/v1internal:retrieveUserQuota",
                 accessToken: accessToken,
                 projectId: projectId,
                 timeout: timeout,

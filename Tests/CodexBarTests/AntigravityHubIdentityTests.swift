@@ -77,7 +77,9 @@ struct AntigravityHubIdentityTests {
                         "response": ["cloudaicompanionProject": ["id": " \(account)-project \n"]],
                     ])
                 case "/v1internal:retrieveUserQuotaSummary" where summaryAvailable:
-                    payload = Data(antigravityQuotaSummaryJSON().utf8)
+                    payload = Data(antigravityQuotaSummaryJSON(
+                        geminiSession: url.host == "daily-cloudcode-pa.googleapis.com" ? 0.88 : 1,
+                        geminiWeekly: url.host == "daily-cloudcode-pa.googleapis.com" ? 0 : 0.69).utf8)
                 case "/v1internal:retrieveUserQuota":
                     payload = GeminiAPITestHelpers.sampleQuotaResponse()
                 default:
@@ -104,6 +106,10 @@ struct AntigravityHubIdentityTests {
         #expect(snapshot.accountEmail == "\(account)@example.com")
         #expect(snapshot.hasKnownQuotaSummary == summaryAvailable)
         #expect(summaryAvailable || snapshot.modelQuotas.count == 3)
+        if summaryAvailable {
+            let usage = try snapshot.toUsageSnapshot()
+            #expect(usage.extraRateWindows?.prefix(2).map { $0.window.remainingPercent.rounded() } == [88, 0])
+        }
 
         let requests = await capture.values()
         let cloudRequests = requests.filter { $0.url?.host == "cloudcode-pa.googleapis.com" }
@@ -122,7 +128,7 @@ struct AntigravityHubIdentityTests {
         #else
         let platform = "darwin"
         #endif
-        for request in cloudRequests {
+        for request in cloudRequests + dailyRequests {
             #expect(request.value(forHTTPHeaderField: "User-Agent") ==
                 "antigravity/hub/2.9.1 \(platform)/\(architecture)")
         }
