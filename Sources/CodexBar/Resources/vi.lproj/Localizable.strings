@@ -2684,3 +2684,8 @@
 /* Munito provider credentials */
 "Key with Read account data (Admin API) permission. Or set MUNITO_API_KEY." = "Khoá có quyền đọc dữ liệu tài khoản (Admin API). Hoặc đặt MUNITO_API_KEY.";
 "Munito reports Admin API spend and limits, not local token cost history." = "Munito báo cáo chi tiêu và giới hạn của Admin API, không phải lịch sử chi phí token cục bộ.";
+
+// Personal subscription notes
+"Subscription note (manual)" = "Subscription note (manual)";
+"Paid 15 Oct · next payment 15 Nov · Visa •1234" = "Paid 15 Oct · next payment 15 Nov · Visa •1234";
+"Saved automatically on this Mac. Clear the field to remove the note from the menu." = "Saved automatically on this Mac. Clear the field to remove the note from the menu.";

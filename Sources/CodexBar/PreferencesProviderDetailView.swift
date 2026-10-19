@@ -151,6 +151,8 @@ struct ProviderDetailView<SupplementaryContent: View>: View {
                     showsAccountInfo: self.accountUsageOverview == nil)
             }
 
+            ManualSubscriptionNotesSection(provider: self.provider, store: self.store)
+
             if let overview = self.accountUsageOverview {
                 ProviderAccountUsageOverviewView(
                     provider: self.provider,

@@ -461,6 +461,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         false
     }
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        // Let Finder/Spotlight reopen Settings even when the menu bar icon is hidden.
+        self.openSettings(pane: .general)
+        return false
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         MenuBarStatusItemWindowProbe.trace("did-finish-launching")
         self.dockIconController.start()

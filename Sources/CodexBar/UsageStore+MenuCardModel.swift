@@ -43,8 +43,22 @@ extension UsageStore {
         context: UsageMenuCardContext = .menu,
         now: Date = Date()) -> UsageMenuCardView.Model
     {
-        UsageMenuCardView.Model.make(self.menuCardInput(for: provider, context: context, now: now))
+        var model = UsageMenuCardView.Model.make(self.menuCardInput(for: provider, context: context, now: now))
             .applyingUsageItemVisibility(hiddenItemIDs: self.settings.hiddenUsageItemIDs(for: provider))
+        let email = context.account.map { $0.info?.email ?? $0.snapshot?.accountEmail(for: provider) }
+            ?? self.accountInfo(for: provider).email
+        if !self.settings.hidePersonalInfo,
+           let key = ManualSubscriptionNotes.key(provider: provider.rawValue, email: email)
+        {
+            let note = self.settings.manualSubscriptionNotes.text(for: key)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !note.isEmpty {
+                let line = L("Subscription note (manual)") + ": " + note
+                model.usageNotes.append(line)
+                model.subscriptionNotes.append(line)
+            }
+        }
+        return model
     }
 
     func menuCardInput(
@@ -63,10 +77,7 @@ extension UsageStore {
         let metadata = self.metadata(for: provider)
         let descriptor = ProviderDescriptorRegistry.descriptor(for: provider)
         // An explicitly empty account stays empty; live data may belong to another account.
-        let rawSnapshot = isLive ? self.presentationSnapshot(for: provider) : account?.snapshot
-        let billingVisible = provider != .codex ||
-            (self.settings.openAIWebAccessEnabled && self.settings.codexCookieSource.isEnabled)
-        let snapshot = billingVisible ? rawSnapshot : rawSnapshot?.withAccountBilling(nil)
+        let snapshot = isLive ? self.presentationSnapshot(for: provider) : account?.snapshot
         let codexProjection = self.codexConsumerProjectionIfNeeded(
             for: provider,
             surface: isLive ? .liveCard : .overrideCard,

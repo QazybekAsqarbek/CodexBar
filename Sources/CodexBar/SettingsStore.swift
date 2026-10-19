@@ -253,6 +253,7 @@ final class SettingsStore {
     static var codexAccountReconciliationSnapshotCacheIntervalOverrideForTesting: TimeInterval?
     #endif
 
+    let manualSubscriptionNotes: ManualSubscriptionNotes
     @ObservationIgnored let userDefaults: UserDefaults
     @ObservationIgnored lazy var httpServer = HTTPServerController(
         configURL: self.configStore.fileURL.deletingLastPathComponent().appendingPathComponent("http-server.json"))
@@ -401,6 +402,7 @@ final class SettingsStore {
         _ = Self.initializeOpenAIWebAccessPreference(
             userDefaults: userDefaults, config: config, hadExistingConfig: hadExistingConfig)
         self.userDefaults = userDefaults
+        self.manualSubscriptionNotes = ManualSubscriptionNotes(defaults: userDefaults)
         self.configStore = configStore
         self.antigravityOAuthCredentialsStore = antigravityOAuthCredentialsStore
         self.keychainAccessPolicy = keychainAccessPolicy

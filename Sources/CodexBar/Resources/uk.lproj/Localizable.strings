@@ -2683,3 +2683,8 @@
 /* Munito provider credentials */
 "Key with Read account data (Admin API) permission. Or set MUNITO_API_KEY." = "Ключ із правом читання даних облікового запису (Admin API). Або встановіть MUNITO_API_KEY.";
 "Munito reports Admin API spend and limits, not local token cost history." = "Munito звітує про витрати та ліміти Admin API, а не локальну історію витрат на токени.";
+
+// Personal subscription notes
+"Subscription note (manual)" = "Subscription note (manual)";
+"Paid 15 Oct · next payment 15 Nov · Visa •1234" = "Paid 15 Oct · next payment 15 Nov · Visa •1234";
+"Saved automatically on this Mac. Clear the field to remove the note from the menu." = "Saved automatically on this Mac. Clear the field to remove the note from the menu.";

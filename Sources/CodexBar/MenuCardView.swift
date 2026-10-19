@@ -977,8 +977,7 @@ extension UsageMenuCardView.Model {
             planEmphasis: input.planEmphasis,
             metrics: metrics,
             usageNotes: usageNotes,
-            subscriptionNotes: Self.subscriptionMetadataNotes(snapshot: input.snapshot, provider: input.provider)
-                + Self.accountBillingNotes(input: input),
+            subscriptionNotes: Self.subscriptionMetadataNotes(snapshot: input.snapshot, provider: input.provider),
             providerDetails: providerDetails.sections,
             providerDetailRawTitles: providerDetails.rawTitles,
             throughput: input.snapshot?.throughput.map {

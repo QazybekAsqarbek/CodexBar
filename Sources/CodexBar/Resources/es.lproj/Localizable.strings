@@ -2681,3 +2681,8 @@
 /* Munito provider credentials */
 "Key with Read account data (Admin API) permission. Or set MUNITO_API_KEY." = "Clave con permiso de lectura de datos de la cuenta (Admin API). O define MUNITO_API_KEY.";
 "Munito reports Admin API spend and limits, not local token cost history." = "Munito informa del gasto y los límites de la Admin API, no del historial de costos de tokens local.";
+
+// Personal subscription notes
+"Subscription note (manual)" = "Subscription note (manual)";
+"Paid 15 Oct · next payment 15 Nov · Visa •1234" = "Paid 15 Oct · next payment 15 Nov · Visa •1234";
+"Saved automatically on this Mac. Clear the field to remove the note from the menu." = "Saved automatically on this Mac. Clear the field to remove the note from the menu.";

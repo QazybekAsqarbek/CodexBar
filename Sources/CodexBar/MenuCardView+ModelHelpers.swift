@@ -295,7 +295,6 @@ extension UsageMenuCardView.Model {
 
     static func usageNotes(input: Input) -> [String] {
         let subscriptionNotes = self.subscriptionMetadataNotes(snapshot: input.snapshot, provider: input.provider)
-            + self.accountBillingNotes(input: input)
 
         if input.provider == .kiro {
             return self.kiroUsageNotes(input: input) + subscriptionNotes

@@ -177,7 +177,6 @@ public struct UsageSnapshot: Codable, Sendable {
     public let commandCodeHasSubscriptionPlan: Bool
     /// Live-only marker that Command Code's monthly grant has no remaining credits.
     public let commandCodeMonthlyGrantDepleted: Bool
-    public let accountBilling: AccountBillingSnapshot?
     public let subscriptionExpiresAt: Date?
     public let subscriptionRenewsAt: Date?
     public let subscriptionRenewsAtIsDateOnly: Bool
@@ -233,7 +232,6 @@ public struct UsageSnapshot: Codable, Sendable {
         commandCodeSubscriptionEnrichmentUnavailable: Bool = false,
         commandCodeHasSubscriptionPlan: Bool = false,
         commandCodeMonthlyGrantDepleted: Bool = false,
-        accountBilling: AccountBillingSnapshot? = nil,
         subscriptionExpiresAt: Date? = nil,
         subscriptionRenewsAt: Date? = nil,
         subscriptionRenewsAtIsDateOnly: Bool = false,
@@ -267,7 +265,6 @@ public struct UsageSnapshot: Codable, Sendable {
         self.commandCodeSubscriptionEnrichmentUnavailable = commandCodeSubscriptionEnrichmentUnavailable
         self.commandCodeHasSubscriptionPlan = commandCodeHasSubscriptionPlan
         self.commandCodeMonthlyGrantDepleted = commandCodeMonthlyGrantDepleted
-        self.accountBilling = accountBilling
         self.subscriptionExpiresAt = subscriptionExpiresAt
         self.subscriptionRenewsAt = subscriptionRenewsAt
         self.subscriptionRenewsAtIsDateOnly = subscriptionRenewsAtIsDateOnly
@@ -303,10 +300,6 @@ public struct UsageSnapshot: Codable, Sendable {
             guard !rows.isEmpty || section.chart != nil else { return nil }
             return .makeSection(title: section.title, rows: rows, chart: section.chart)
         }
-    }
-
-    public func withAccountBilling(_ billing: AccountBillingSnapshot?) -> UsageSnapshot {
-        self.replacing(accountBilling: .value(billing))
     }
 
     public func withSubscriptionMetadata(
@@ -360,7 +353,6 @@ public struct UsageSnapshot: Codable, Sendable {
         self.tertiary = try container.decodeIfPresent(RateWindow.self, forKey: .tertiary)
         self.extraRateWindows = try container.decodeIfPresent([NamedRateWindow].self, forKey: .extraRateWindows)
         self.providerCost = try container.decodeIfPresent(ProviderCostSnapshot.self, forKey: .providerCost)
-        self.accountBilling = nil // Live-only payment metadata.
         self.costUsage = nil // Live-only provider history; refresh from the authoritative source.
         let details = try container.decodeIfPresent([ProviderDetailSection].self, forKey: .details) ?? []
         try ProviderDetailSection.validateSections(details)
@@ -598,7 +590,6 @@ public struct UsageSnapshot: Codable, Sendable {
         browserSessionOwner: Replacement<ProviderBrowserSessionOwner?> = .unchanged,
         codexResetCredits: Replacement<CodexRateLimitResetCreditsSnapshot?> = .unchanged,
         grokResetCredits: Replacement<GrokRateLimitResetCreditsSnapshot?> = .unchanged,
-        accountBilling: Replacement<AccountBillingSnapshot?> = .unchanged,
         subscriptionExpiresAt: Replacement<Date?> = .unchanged,
         subscriptionRenewsAt: Replacement<Date?> = .unchanged,
         subscriptionRenewsAtIsDateOnly: Replacement<Bool> = .unchanged,
@@ -629,7 +620,6 @@ public struct UsageSnapshot: Codable, Sendable {
             commandCodeSubscriptionEnrichmentUnavailable: self.commandCodeSubscriptionEnrichmentUnavailable,
             commandCodeHasSubscriptionPlan: self.commandCodeHasSubscriptionPlan,
             commandCodeMonthlyGrantDepleted: self.commandCodeMonthlyGrantDepleted,
-            accountBilling: accountBilling.resolving(self.accountBilling),
             subscriptionExpiresAt: subscriptionExpiresAt.resolving(self.subscriptionExpiresAt),
             subscriptionRenewsAt: subscriptionRenewsAt.resolving(self.subscriptionRenewsAt),
             subscriptionRenewsAtIsDateOnly: subscriptionRenewsAtIsDateOnly
