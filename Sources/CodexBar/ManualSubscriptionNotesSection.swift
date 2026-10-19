@@ -28,7 +28,9 @@ struct ManualSubscriptionNotesSection: View {
                                 text: Binding(
                                     get: { self.store.settings.manualSubscriptionNotes.text(for: key) },
                                     set: { self.store.settings.manualSubscriptionNotes.setText($0, for: key) }),
+                                prompt: Text(L("Paid 15 Oct · next payment 15 Nov · Visa •1234")),
                                 axis: .vertical)
+                                .labelsHidden()
                                 .lineLimit(1...3)
                                 .textFieldStyle(.roundedBorder)
                                 .accessibilityLabel(L("Subscription note (manual)") + ": " + email)
